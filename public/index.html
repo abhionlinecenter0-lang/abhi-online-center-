@@ -4,82 +4,572 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#172554">
+  <meta name="theme-color" content="#142b52">
   <title>AR Library Management</title>
+
   <style>
+    :root {
+      --navy: #142b52;
+      --blue: #2563eb;
+      --bg: #f3f6fb;
+      --text: #18243a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --white: #fff;
+      --green: #15803d;
+      --red: #b91c1c;
+    }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #172554;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--bg);
     }
-    header {
-      padding: 22px;
-      color: white;
-      background: #172554;
-      text-align: center;
-    }
-    main {
-      width: min(900px, 92%);
-      margin: 24px auto;
-    }
-    .card {
-      background: white;
-      padding: 22px;
-      margin-bottom: 16px;
-      border-radius: 14px;
-      box-shadow: 0 3px 14px #0000000d;
-    }
-    .grid {
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .hidden { display: none !important; }
+
+    .login-page {
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .login-intro {
+      background: linear-gradient(145deg, #102344, #2456a0);
+      color: white;
+      padding: 65px 9%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand {
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .login-intro h1 {
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.15;
+      margin: 24px 0 16px;
+    }
+
+    .login-intro p {
+      line-height: 1.8;
+      color: #dbeafe;
+      max-width: 440px;
+    }
+
+    .feature-list {
+      padding-left: 20px;
+      line-height: 2.4;
+      color: #e0ecff;
+    }
+
+    .login-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 28px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 34px;
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 15px 50px #142b5210;
+    }
+
+    .login-card h2 { margin: 0 0 8px; font-size: 27px; }
+    .muted { color: var(--muted); line-height: 1.6; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 18px 0 8px;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      outline: none;
+      background: white;
+      color: var(--text);
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #2563eb18;
+    }
+
+    .primary-btn, .secondary-btn, .logout-btn {
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .primary-btn {
+      width: 100%;
+      margin-top: 22px;
+      color: white;
+      background: var(--blue);
+    }
+
+    .primary-btn:hover { background: #1d4ed8; }
+    .primary-btn:disabled { opacity: .6; cursor: wait; }
+
+    .message {
+      margin-top: 15px;
+      padding: 11px 12px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error { color: var(--red); background: #fef2f2; }
+    .message.success { color: var(--green); background: #f0fdf4; }
+
+    .demo-note {
+      margin-top: 20px;
+      padding: 12px;
+      background: #eff6ff;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #1e40af;
+    }
+
+    /* Dashboard */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 16px 24px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-brand {
+      color: var(--navy);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .header-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
       gap: 14px;
     }
-    .tile {
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 20px;
+
+    .user-info { text-align: right; }
+    .user-info strong { display: block; }
+    .user-info small { color: var(--muted); }
+
+    .logout-btn {
+      background: #fee2e2;
+      color: #991b1b;
     }
-    .muted { color: #64748b; }
+
+    .dashboard-layout {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 28px 22px 50px;
+    }
+
+    .welcome-banner {
+      padding: 28px;
+      border-radius: 18px;
+      color: white;
+      background: linear-gradient(110deg, #142b52, #2563eb);
+    }
+
+    .welcome-banner h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .welcome-banner p {
+      margin: 0;
+      line-height: 1.7;
+      color: #dbeafe;
+    }
+
+    .section-heading {
+      margin: 30px 0 16px;
+      font-size: 20px;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .module-card {
+      background: white;
+      padding: 21px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      min-height: 150px;
+    }
+
+    .module-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 43px;
+      height: 43px;
+      border-radius: 12px;
+      background: #eff6ff;
+      font-size: 22px;
+    }
+
+    .module-card h3 { margin: 16px 0 8px; font-size: 17px; }
+    .module-card p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+
+    .info-panel {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 22px;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-row:last-child { border-bottom: 0; }
+    .info-row span { color: var(--muted); }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .login-page { grid-template-columns: 1fr; }
+      .login-intro { padding: 28px 25px; }
+      .login-intro h1 { font-size: 34px; margin: 15px 0 8px; }
+      .feature-list { display: none; }
+      .login-area { padding: 22px 16px 35px; }
+      .login-card { padding: 25px 21px; }
+      .app-header { padding: 14px; align-items: flex-start; }
+      .header-brand { font-size: 16px; }
+      .header-right { gap: 8px; }
+      .user-info { display: none; }
+      .logout-btn { padding: 10px 12px; }
+      .dashboard-layout { padding: 18px 14px 35px; }
+      .welcome-banner { padding: 23px 19px; }
+      .welcome-banner h1 { font-size: 23px; }
+      .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .module-card { padding: 15px; min-height: 140px; }
+      .module-card h3 { font-size: 15px; }
+      .info-panel { padding: 16px; }
+    }
+
+    @media (max-width: 380px) {
+      .module-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>AR Library Management</h1>
-    <p>Library & Reading Room Management System</p>
-  </header>
 
-  <main>
-    <section class="card">
-      <h2>Welcome</h2>
-      <p class="muted">
-        लाइब्रेरी की सीट, सदस्य, फीस और उपस्थिति को
-        एक ही सिस्टम में मैनेज करने के लिए।
+  <!-- Login screen -->
+  <section id="loginPage" class="login-page">
+    <div class="login-intro">
+      <div class="brand">AR Library Management</div>
+      <h1>आपकी लाइब्रेरी,<br>अब डिजिटल।</h1>
+      <p>
+        सदस्य, सीट, फीस और उपस्थिति को व्यवस्थित करने के लिए
+        आपका लाइब्रेरी मैनेजमेंट सिस्टम।
       </p>
-      <p id="status">सर्वर की स्थिति जाँची जा रही है...</p>
-    </section>
+      <ul class="feature-list">
+        <li>Admin, Staff और Member access</li>
+        <li>सुरक्षित Login सिस्टम</li>
+        <li>मोबाइल और कंप्यूटर के लिए डिज़ाइन</li>
+      </ul>
+    </div>
 
-    <section class="grid">
-      <div class="tile"><h3>Members</h3><p>सदस्य प्रबंधन</p></div>
-      <div class="tile"><h3>Seats</h3><p>सीट आवंटन</p></div>
-      <div class="tile"><h3>Fees</h3><p>मासिक फीस और रसीद</p></div>
-      <div class="tile"><h3>Attendance</h3><p>उपस्थिति रिकॉर्ड</p></div>
-    </section>
-  </main>
+    <div class="login-area">
+      <div class="login-card">
+        <h2>Welcome Back!</h2>
+        <p class="muted">अपने अकाउंट से Login करें।</p>
+
+        <form id="loginForm">
+          <label for="username">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="अपना username लिखें"
+            autocomplete="username"
+            required
+          >
+
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="अपना password लिखें"
+            autocomplete="current-password"
+            required
+          >
+
+          <button id="loginButton" class="primary-btn" type="submit">
+            Login करें
+          </button>
+          <div id="loginMessage" aria-live="polite"></div>
+        </form>
+
+        <div class="demo-note">
+          <strong>Login सहायता</strong><br>
+          Admin द्वारा बनाए गए username और password का उपयोग करें।
+          सुरक्षा के लिए कोई default password नहीं दिया गया है।
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard screen -->
+  <section id="dashboardPage" class="hidden">
+    <header class="app-header">
+      <div>
+        <div class="header-brand">AR Library</div>
+        <div class="header-subtitle">Library Management System</div>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <strong id="headerName">User</strong>
+          <small id="headerRole">Member</small>
+        </div>
+        <button id="logoutButton" class="logout-btn" type="button">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <section class="welcome-banner">
+        <h1 id="welcomeTitle">Dashboard</h1>
+        <p id="welcomeText">आपका स्वागत है।</p>
+      </section>
+
+      <h2 class="section-heading">आपके Modules</h2>
+      <section id="moduleGrid" class="module-grid"></section>
+
+      <section class="info-panel">
+        <h2 style="margin-top:0">Account Information</h2>
+        <div class="info-row">
+          <span>नाम</span>
+          <strong id="accountName">—</strong>
+        </div>
+        <div class="info-row">
+          <span>Username</span>
+          <strong id="accountUsername">—</strong>
+        </div>
+        <div class="info-row">
+          <span>Role</span>
+          <strong id="accountRole">—</strong>
+        </div>
+        <p class="muted" style="font-size:12px">
+          यहाँ दिखाई देने वाली module सूची आपके role के अनुसार है।
+          जिन modules का backend अभी नहीं बना है, वे अभी जानकारी के लिए हैं।
+        </p>
+      </section>
+    </main>
+
+    <footer>AR Library Management Software</footer>
+  </section>
 
   <script>
-    fetch("/api/health")
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("status").textContent =
-          "Server: " + data.status;
-      })
-      .catch(() => {
-        document.getElementById("status").textContent =
-          "सर्वर से कनेक्शन नहीं हो पाया।";
-      });
+    const loginPage = document.getElementById("loginPage");
+    const dashboardPage = document.getElementById("dashboardPage");
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const loginMessage = document.getElementById("loginMessage");
+
+    const modulesByRole = {
+      admin: [
+        ["👥", "Members", "सदस्यों के अकाउंट और जानकारी"],
+        ["🪑", "Seat Management", "सीटों और आवंटन का प्रबंधन"],
+        ["💳", "Fees & Payments", "मासिक फीस और भुगतान रिकॉर्ड"],
+        ["📅", "Attendance", "उपस्थिति रिकॉर्ड"],
+        ["💰", "Expenses", "लाइब्रेरी के खर्च"],
+        ["📊", "Reports", "रिपोर्ट और Excel export"],
+        ["🛡️", "Staff & Permissions", "स्टाफ अकाउंट और अनुमतियाँ"],
+        ["⚙️", "Settings", "लाइब्रेरी सेटिंग्स"]
+      ],
+      staff: [
+        ["👥", "Members", "सदस्य प्रबंधन"],
+        ["🪑", "Seat Management", "सीट प्रबंधन"],
+        ["💳", "Fees & Payments", "भुगतान रिकॉर्ड"],
+        ["📅", "Attendance", "उपस्थिति रिकॉर्ड"]
+      ],
+      member: [
+        ["👤", "My Profile", "अपनी सदस्य जानकारी"],
+        ["🪑", "My Seat", "अपनी सीट की जानकारी"],
+        ["💳", "My Fees", "फीस और भुगतान इतिहास"],
+        ["📅", "My Attendance", "अपनी उपस्थिति"]
+      ]
+    };
+
+    function showMessage(message, type = "error") {
+      loginMessage.className = "message " + type;
+      loginMessage.textContent = message;
+    }
+
+    function clearMessage() {
+      loginMessage.className = "";
+      loginMessage.textContent = "";
+    }
+
+    function renderDashboard(user) {
+      const role = ["admin", "staff", "member"].includes(user.role)
+        ? user.role
+        : "member";
+
+      loginPage.classList.add("hidden");
+      dashboardPage.classList.remove("hidden");
+
+      document.getElementById("headerName").textContent = user.name || user.username;
+      document.getElementById("headerRole").textContent = role.toUpperCase();
+      document.getElementById("welcomeTitle").textContent =
+        "नमस्ते, " + (user.name || user.username) + "!";
+      document.getElementById("welcomeText").textContent =
+        role === "admin"
+          ? "यह आपका Admin Dashboard है।"
+          : role === "staff"
+            ? "यह आपका Staff Dashboard है।"
+            : "यह आपका Member Dashboard है।";
+
+      document.getElementById("accountName").textContent = user.name || "—";
+      document.getElementById("accountUsername").textContent = user.username || "—";
+      document.getElementById("accountRole").textContent = role.toUpperCase();
+
+      const grid = document.getElementById("moduleGrid");
+      grid.replaceChildren();
+
+      for (const item of modulesByRole[role]) {
+        const card = document.createElement("article");
+        card.className = "module-card";
+
+        const icon = document.createElement("div");
+        icon.className = "module-icon";
+        icon.textContent = item[0];
+
+        const title = document.createElement("h3");
+        title.textContent = item[1];
+
+        const description = document.createElement("p");
+        description.textContent = item[2];
+
+        card.append(icon, title, description);
+        grid.appendChild(card);
+      }
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Login हो रहा है...";
+
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || "Login नहीं हो पाया।");
+        }
+
+        if (!data.token || !data.user ||
+            !["admin", "staff", "member"].includes(data.user.role)) {
+          throw new Error("सर्वर से सही login response नहीं मिला।");
+        }
+
+        sessionStorage.setItem("arLibraryToken", data.token);
+        sessionStorage.setItem("arLibraryUser", JSON.stringify(data.user));
+
+        loginForm.reset();
+        renderDashboard(data.user);
+      } catch (error) {
+        showMessage(
+          error.message === "Failed to fetch"
+            ? "सर्वर से कनेक्शन नहीं हो पाया। कृपया कुछ देर बाद कोशिश करें।"
+            : error.message
+        );
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Login करें";
+      }
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      sessionStorage.removeItem("arLibraryToken");
+      sessionStorage.removeItem("arLibraryUser");
+
+      dashboardPage.classList.add("hidden");
+      loginPage.classList.remove("hidden");
+      clearMessage();
+      document.getElementById("password").value = "";
+    });
+
+    // Restore this browser tab's session if the user reloads.
+    try {
+      const token = sessionStorage.getItem("arLibraryToken");
+      const savedUser = sessionStorage.getItem("arLibraryUser");
+
+      if (token && savedUser) {
+        const user = JSON.parse(savedUser);
+
+        if (user && ["admin", "staff", "member"].includes(user.role)) {
+          renderDashboard(user);
+        }
+      }
+    } catch {
+      sessionStorage.removeItem("arLibraryToken");
+      sessionStorage.removeItem("arLibraryUser");
+    }
   </script>
 </body>
 </html>
