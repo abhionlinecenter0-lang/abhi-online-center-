@@ -4,8 +4,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "description": "AR Library Management Software",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
