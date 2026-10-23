@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#172554">
+  <title>AR Library Management</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172554;
+    }
+    header {
+      padding: 22px;
+      color: white;
+      background: #172554;
+      text-align: center;
+    }
+    main {
+      width: min(900px, 92%);
+      margin: 24px auto;
+    }
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 16px;
+      border-radius: 14px;
+      box-shadow: 0 3px 14px #0000000d;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .tile {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .muted { color: #64748b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AR Library Management</h1>
+    <p>Library & Reading Room Management System</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Welcome</h2>
+      <p class="muted">
+        लाइब्रेरी की सीट, सदस्य, फीस और उपस्थिति को
+        एक ही सिस्टम में मैनेज करने के लिए।
+      </p>
+      <p id="status">सर्वर की स्थिति जाँची जा रही है...</p>
+    </section>
+
+    <section class="grid">
+      <div class="tile"><h3>Members</h3><p>सदस्य प्रबंधन</p></div>
+      <div class="tile"><h3>Seats</h3><p>सीट आवंटन</p></div>
+      <div class="tile"><h3>Fees</h3><p>मासिक फीस और रसीद</p></div>
+      <div class="tile"><h3>Attendance</h3><p>उपस्थिति रिकॉर्ड</p></div>
+    </section>
+  </main>
+
+  <script>
+    fetch("/api/health")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("status").textContent =
+          "Server: " + data.status;
+      })
+      .catch(() => {
+        document.getElementById("status").textContent =
+          "सर्वर से कनेक्शन नहीं हो पाया।";
+      });
+  </script>
+</body>
+</html>
